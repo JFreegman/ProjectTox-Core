@@ -272,7 +272,15 @@ typedef struct {
 
     Node_format to_bootstrap[MAX_CLOSE_TO_BOOTSTRAP_NODES];
     unsigned int num_to_bootstrap;
+
+    void (*getnodes_response)(IP_Port *, const uint8_t *public_key, void *);
+    void *getnodes_response_data;
 } DHT;
+
+/* Set the callback function that will be executed when we get a getnodes response. */
+void DHT_callback_getnodes_response(DHT *dht, void (*func)(IP_Port *, const uint8_t *, void *), void *userdata);
+
+
 /*----------------------------------------------------------------------------------*/
 
 /* Shared key generations are costly, it is therefor smart to store commonly used
