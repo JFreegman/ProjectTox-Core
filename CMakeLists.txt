@@ -14,7 +14,7 @@ set(CMAKE_MODULE_PATH ${toxcore_SOURCE_DIR}/cmake)
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
 set(PROJECT_VERSION_MINOR "1")
-set(PROJECT_VERSION_PATCH "9")
+set(PROJECT_VERSION_PATCH "10")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 # set .so library version / following libtool scheme
@@ -41,9 +41,10 @@ include(AddCompilerFlag)
 include(ApiDsl)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
-include(CTest)
 include(MacRpath)
 include(StrictAbi)
+
+enable_testing()
 
 set(CMAKE_MACOSX_RPATH ON)
 
@@ -78,6 +79,8 @@ if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_flag("-Wno-sign-compare")
     add_flag("-Wno-sign-conversion")
     add_flag("-Wno-tautological-constant-out-of-range-compare")
+    # Our use of mutexes results in a false positive, see 1bbe446
+    add_flag("-Wno-thread-safety-analysis")
     add_flag("-Wno-type-limits")
     add_flag("-Wno-undef")
     add_flag("-Wno-unreachable-code")
