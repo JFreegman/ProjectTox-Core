@@ -26,14 +26,18 @@
 #include "config.h"
 #endif
 
-#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "DHT.h"
+#include "mono_time.h"
 #include "network.h"
 #include "group_connection.h"
 #include "group_chats.h"
 #include "Messenger.h"
 #include "util.h"
+
+#ifndef VANILLA_NACL
 
 /* Returns group connection object for peernumber.
  * Returns NULL if peernumber is invalid.
@@ -41,7 +45,7 @@
 GC_Connection *gcc_get_connection(const GC_Chat *chat, int peernumber)
 {
     if (!peernumber_valid(chat, peernumber)) {
-        return NULL;
+        return nullptr;
     }
 
     return &chat->gcc[peernumber];
@@ -82,9 +86,9 @@ static int create_ary_entry(struct GC_Message_Ary_Entry *ary_entry, const uint8_
                             uint8_t packet_type, uint64_t message_id)
 {
     if (length) {
-        ary_entry->data = malloc(sizeof(uint8_t) * length);
+        ary_entry->data = (uint8_t *)malloc(sizeof(uint8_t) * length);
 
-        if (ary_entry->data == NULL) {
+        if (ary_entry->data == nullptr) {
             return -1;
         }
 
@@ -108,7 +112,7 @@ static int create_ary_entry(struct GC_Message_Ary_Entry *ary_entry, const uint8_
 int gcc_add_send_ary(GC_Connection *gconn, const uint8_t *data, uint32_t length, uint8_t packet_type)
 {
     /* check if send_ary is full */
-    if ((gconn->send_message_id % GCC_BUFFER_SIZE) == (uint16_t) (gconn->send_ary_start - 1)) {
+    if ((gconn->send_message_id % GCC_BUFFER_SIZE) == (uint16_t)(gconn->send_ary_start - 1)) {
         return -1;
     }
 
@@ -173,7 +177,7 @@ int gcc_handle_recv_message(GC_Chat *chat, uint32_t peernumber, const uint8_t *d
 {
     GC_Connection *gconn = gcc_get_connection(chat, peernumber);
 
-    if (gconn == NULL) {
+    if (gconn == nullptr) {
         return -1;
     }
 
@@ -213,7 +217,7 @@ static int process_recv_ary_entry(GC_Chat *chat, Messenger *m, int groupnum, uin
 {
     GC_Connection *gconn = gcc_get_connection(chat, peernumber);
 
-    if (gconn == NULL) {
+    if (gconn == nullptr) {
         return -1;
     }
 
@@ -248,7 +252,7 @@ int gcc_check_recv_ary(Messenger *m, int groupnum, uint32_t peernumber)
 
     GC_Connection *gconn = gcc_get_connection(chat, peernumber);
 
-    if (gconn == NULL) {
+    if (gconn == nullptr) {
         return -1;
     }
 
@@ -271,7 +275,7 @@ void gcc_resend_packets(Messenger *m, GC_Chat *chat, uint32_t peernumber)
 {
     GC_Connection *gconn = gcc_get_connection(chat, peernumber);
 
-    if (gconn == NULL) {
+    if (gconn == nullptr) {
         return;
     }
 
@@ -299,7 +303,7 @@ void gcc_resend_packets(Messenger *m, GC_Chat *chat, uint32_t peernumber)
         }
 
         if (is_timeout(ary_entry->time_added, GC_CONFIRMED_PEER_TIMEOUT)) {
-            gc_peer_delete(m, chat->groupnumber, peernumber, (uint8_t *) "Peer timed out", 14);
+            gc_peer_delete(m, chat->groupnumber, peernumber, (const uint8_t *)"Peer timed out", 14);
             return;
         }
     }
@@ -319,7 +323,7 @@ int gcc_send_group_packet(const GC_Chat *chat, const GC_Connection *gconn, const
 
     bool direct_send_attempt = false;
 
-    if (gconn->addr.ip_port.ip.family != 0) {
+    if (!net_family_is_unspec(gconn->addr.ip_port.ip.family)) {
         if (gcc_connection_is_direct(gconn)) {
             if ((uint16_t) sendpacket(chat->net, gconn->addr.ip_port, packet, length) == length) {
                 return 0;
@@ -329,8 +333,9 @@ int gcc_send_group_packet(const GC_Chat *chat, const GC_Connection *gconn, const
         }
 
         if (packet_type != GP_BROADCAST && packet_type != GP_MESSAGE_ACK) {
-            if ((uint16_t) sendpacket(chat->net, gconn->addr.ip_port, packet, length) == length)
+            if ((uint16_t) sendpacket(chat->net, gconn->addr.ip_port, packet, length) == length) {
                 direct_send_attempt = true;
+            }
         }
     }
 
@@ -379,5 +384,7 @@ void gcc_cleanup(GC_Chat *chat)
     }
 
     free(chat->gcc);
-    chat->gcc = NULL;
+    chat->gcc = nullptr;
 }
+
+#endif /* VANILLA_NACL */

@@ -5,12 +5,16 @@ libtoxcore_la_include_HEADERS = \
 
 libtoxcore_la_includedir = $(includedir)/tox
 
-libtoxcore_la_SOURCES = ../toxcore/DHT.h \
+libtoxcore_la_SOURCES = ../toxcore/ccompat.h \
+                        ../toxcore/DHT.h \
                         ../toxcore/DHT.c \
+                        ../toxcore/mono_time.h \
+                        ../toxcore/mono_time.c \
                         ../toxcore/network.h \
                         ../toxcore/network.c \
                         ../toxcore/crypto_core.h \
                         ../toxcore/crypto_core.c \
+                        ../toxcore/crypto_core_mem.c \
                         ../toxcore/ping_array.h \
                         ../toxcore/ping_array.c \
                         ../toxcore/net_crypto.h \
@@ -25,10 +29,15 @@ libtoxcore_la_SOURCES = ../toxcore/DHT.h \
                         ../toxcore/Messenger.c \
                         ../toxcore/ping.h \
                         ../toxcore/ping.c \
+                        ../toxcore/state.h \
+                        ../toxcore/state.c \
                         ../toxcore/tox.h \
                         ../toxcore/tox.c \
+                        ../toxcore/tox_api.c \
                         ../toxcore/util.h \
                         ../toxcore/util.c \
+                        ../toxcore/group.h \
+                        ../toxcore/group.c \
                         ../toxcore/group_chats.h \
                         ../toxcore/group_chats.c \
                         ../toxcore/group_announce.h \
@@ -37,8 +46,6 @@ libtoxcore_la_SOURCES = ../toxcore/DHT.h \
                         ../toxcore/group_connection.h \
                         ../toxcore/group_moderation.c \
                         ../toxcore/group_moderation.h \
-                        ../toxcore/assoc.h \
-                        ../toxcore/assoc.c \
                         ../toxcore/onion.h \
                         ../toxcore/onion.c \
                         ../toxcore/logger.h \
@@ -54,9 +61,7 @@ libtoxcore_la_SOURCES = ../toxcore/DHT.h \
                         ../toxcore/TCP_connection.h \
                         ../toxcore/TCP_connection.c \
                         ../toxcore/list.c \
-                        ../toxcore/list.h \
-                        ../toxcore/misc_tools.h \
-                        ../toxcore/tox_old_code.h
+                        ../toxcore/list.h
 
 libtoxcore_la_CFLAGS =  -I$(top_srcdir) \
                         -I$(top_srcdir)/toxcore \
@@ -64,7 +69,7 @@ libtoxcore_la_CFLAGS =  -I$(top_srcdir) \
                         $(NACL_CFLAGS) \
                         $(PTHREAD_CFLAGS)
 
-libtoxcore_la_LDFLAGS = $(TOXCORE_LT_LDFLAGS) \
+libtoxcore_la_LDFLAGS = $(LT_LDFLAGS) \
                         $(EXTRA_LT_LDFLAGS) \
                         $(LIBSODIUM_LDFLAGS) \
                         $(NACL_LDFLAGS) \
@@ -76,3 +81,9 @@ libtoxcore_la_LIBADD =  $(LIBSODIUM_LIBS) \
                         $(NACL_OBJECTS) \
                         $(NAC_LIBS) \
                         $(PTHREAD_LIBS)
+
+if SET_SO_VERSION
+
+EXTRA_libtoxcore_la_DEPENDENCIES = ../so.version
+
+endif

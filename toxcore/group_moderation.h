@@ -50,7 +50,7 @@ struct GC_Sanction {
     union {
         struct GC_Ban ban_info;    /* Used if type is SA_BAN */
         uint8_t       target_pk[ENC_PUBLIC_KEY];    /* Used if type is SA_OBSERVER */
-    };
+    } info;
 
     /* Signature of all above packed data signed by the owner of public_sig_key */
     uint8_t     signature[SIGNATURE_SIZE];

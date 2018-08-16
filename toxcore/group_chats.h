@@ -41,7 +41,7 @@
 #define MAX_GC_MODERATORS 128
 
 #define GC_MOD_LIST_ENTRY_SIZE SIG_PUBLIC_KEY
-#define GC_MODERATION_HASH_SIZE crypto_hash_sha256_BYTES
+#define GC_MODERATION_HASH_SIZE CRYPTO_SHA256_SIZE
 #define GC_PING_INTERVAL 12
 #define GC_CONFIRMED_PEER_TIMEOUT (GC_PING_INTERVAL * 4 + 10)
 #define GC_UNCONFRIMED_PEER_TIMEOUT GC_PING_INTERVAL
@@ -311,7 +311,7 @@ struct SAVED_GROUP {
     uint16_t  num_addrs;
     GC_PeerAddress addrs[GROUP_SAVE_MAX_PEERS];
     uint16_t  num_mods;
-    uint8_t   mod_list[GC_MOD_LIST_ENTRY_SIZE *MAX_GC_MODERATORS];
+    uint8_t   mod_list[GC_MOD_LIST_ENTRY_SIZE * MAX_GC_MODERATORS];
 
     /* self info */
     uint8_t   self_public_key[EXT_PUBLIC_KEY];
@@ -435,6 +435,13 @@ int gc_get_peer_nick(const GC_Chat *chat, uint32_t peer_id, uint8_t *name);
  * Returns -1 if peer_id is invalid.
  */
 int gc_get_peer_nick_size(const GC_Chat *chat, uint32_t peer_id);
+
+/* Copies peer_id's public key to public_key.
+ *
+ * Returns 0 on success.
+ * Returns -1 if peer_id is invalid.
+ */
+int gc_get_peer_public_key(const GC_Chat *chat, uint32_t peer_id, uint8_t *public_key);
 
 /* Sets the caller's status to status
  *
@@ -578,15 +585,15 @@ void gc_callback_rejected(struct Messenger *m, void (*function)(struct Messenger
                           void *userdata);
 
 /* The main loop. */
-void do_gc(GC_Session *c);
+void do_gc(GC_Session *c, void *userdata);
 
 /* Returns a NULL pointer if fail.
  * Make sure that DHT is initialized before calling this
  */
-GC_Session *new_groupchats(struct Messenger *m);
+GC_Session *new_dht_groupchats(struct Messenger *m);
 
 /* Cleans up groupchat structures and calls gc_group_exit() for every group chat */
-void kill_groupchats(GC_Session *c);
+void kill_dht_groupchats(GC_Session *c);
 
 /* Loads a previously saved group and attempts to join it.
  *
@@ -637,7 +644,8 @@ int gc_accept_invite(GC_Session *c, const uint8_t *data, uint16_t length, const 
  * Return -2 on failure to create the invite data.
  * Return -3 if the packet fails to send.
  */
-int gc_invite_friend(GC_Session *c, GC_Chat *chat, int32_t friendnum);
+int gc_invite_friend(GC_Session *c, GC_Chat *chat, int32_t friendnum,
+                     int send_group_invite_packet(const struct Messenger *m, uint32_t friendnumber, const uint8_t *packet, size_t length));
 
 /* Sends parting message to group and deletes group.
  *

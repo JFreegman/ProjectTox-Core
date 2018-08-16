@@ -48,7 +48,7 @@ struct GC_Message_Ary_Entry {
     uint64_t last_send_try;
 };
 
-typedef struct GC_Connection {
+struct GC_Connection {
     uint64_t send_message_id;   /* message_id of the next message we send to peer */
 
     uint16_t send_ary_start;   /* send_ary index of oldest item */
@@ -61,7 +61,7 @@ typedef struct GC_Connection {
     uint32_t    public_key_hash;   /* hash of peer's real encryption public key */
     uint8_t     session_public_key[ENC_PUBLIC_KEY];   /* self session public key for this peer */
     uint8_t     session_secret_key[ENC_SECRET_KEY];   /* self session secret key for this peer */
-    uint8_t     shared_key[crypto_box_BEFORENMBYTES];  /* made with our session sk and peer's session pk */
+    uint8_t     shared_key[CRYPTO_SHARED_KEY_SIZE];  /* made with our session sk and peer's session pk */
 
     int         tcp_connection_num;
     uint64_t    last_recv_direct_time;   /* the last time we received a direct packet from this peer */
@@ -73,7 +73,7 @@ typedef struct GC_Connection {
     bool        pending_state_sync;    /* used for group state syncing */
     bool        handshaked; /* true if we've successfully handshaked with this peer */
     bool        confirmed;  /* true if this peer has given us their info */
-} GC_Connection;
+};
 
 /* Return connection object for peernumber.
  * Return NULL if peernumber is invalid.
