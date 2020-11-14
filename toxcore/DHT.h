@@ -6,8 +6,8 @@
 /*
  * An implementation of the DHT as seen in docs/updates/DHT.md
  */
-#ifndef C_TOXCORE_TOXCORE_DHT_H
-#define C_TOXCORE_TOXCORE_DHT_H
+#ifndef DHT_H
+#define DHT_H
 
 #include "crypto_core.h"
 #include "logger.h"
@@ -217,6 +217,9 @@ uint16_t dht_get_num_friends(const DHT *dht);
 
 DHT_Friend *dht_get_friend(DHT *dht, uint32_t friend_num);
 const uint8_t *dht_get_friend_public_key(const DHT *dht, uint32_t friend_num);
+
+/* Set the callback function that will be executed when we get a getnodes response. */
+void DHT_callback_getnodes_response(DHT *dht, void (*func)(IP_Port *, const uint8_t *, void *), void *userdata);
 
 /*----------------------------------------------------------------------------------*/
 
